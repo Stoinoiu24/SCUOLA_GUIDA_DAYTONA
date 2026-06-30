@@ -20,7 +20,7 @@ CREATE TABLE utente (
     cognome VARCHAR(50) NOT NULL,
     data_nascita DATE NOT NULL,
     comune_nascita VARCHAR(50) NOT NULL,
-    indirizzo VARCHAR(100) NOT NULL,
+    indirizzo VARCHAR(100) NOT NULL, 
     citta VARCHAR(50) NOT NULL,
     cap VARCHAR(10) NOT NULL,
     telefono VARCHAR(20) NOT NULL,
