@@ -44,7 +44,7 @@ CREATE TABLE istruttore (
     codice_fiscale CHAR(16) PRIMARY KEY,
     numero_patente VARCHAR(30) NOT NULL,
     data_assunzione DATE NOT NULL,
-    stipendio NUMERIC(8,2 NOT NULL),
+    stipendio NUMERIC(8,2) NOT NULL,
 
     FOREIGN KEY (codice_fiscale)
         REFERENCES utente(codice_fiscale)
@@ -75,8 +75,8 @@ CREATE TABLE corso (
     FOREIGN KEY (categoria_patente)
         REFERENCES patente(categoria),
 
-    CHECK (numero_lezioni_teoriche IS NULL OR numero_lezioni_teoriche >= 0),
-    CHECK (numero_minimo_lezioni_pratiche IS NULL OR numero_minimo_lezioni_pratiche >= 0)
+    CHECK (numero_lezioni_teoriche >= 0),
+    CHECK (numero_minimo_lezioni_pratiche >= 0)
 );
 
 
