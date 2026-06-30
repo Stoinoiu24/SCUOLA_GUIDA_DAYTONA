@@ -24,7 +24,7 @@ CREATE TABLE utente (
     citta VARCHAR(50) NOT NULL,
     cap VARCHAR(10) NOT NULL,
     telefono VARCHAR(20) NOT NULL,
-    email VARCHAR(100)
+    email VARCHAR(100) NOT NULL
 );
 
 
