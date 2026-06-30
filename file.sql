@@ -19,11 +19,11 @@ CREATE TABLE utente (
     nome VARCHAR(50) NOT NULL,
     cognome VARCHAR(50) NOT NULL,
     data_nascita DATE NOT NULL,
-    comune_nascita VARCHAR(50),
-    indirizzo VARCHAR(100),
-    citta VARCHAR(50),
-    cap VARCHAR(10),
-    telefono VARCHAR(20),
+    comune_nascita VARCHAR(50) NOT NULL,
+    indirizzo VARCHAR(100) NOT NULL,
+    citta VARCHAR(50) NOT NULL,
+    cap VARCHAR(10) NOT NULL,
+    telefono VARCHAR(20) NOT NULL,
     email VARCHAR(100)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE istruttore (
     codice_fiscale CHAR(16) PRIMARY KEY,
     numero_patente VARCHAR(30) NOT NULL,
     data_assunzione DATE NOT NULL,
-    stipendio NUMERIC(8,2),
+    stipendio NUMERIC(8,2 NOT NULL),
 
     FOREIGN KEY (codice_fiscale)
         REFERENCES utente(codice_fiscale)
@@ -54,7 +54,7 @@ CREATE TABLE istruttore (
 
 CREATE TABLE patente (
     categoria VARCHAR(10) PRIMARY KEY,
-    descrizione VARCHAR(255),
+    descrizione VARCHAR(255) NOT NULL,
     eta_minima INTEGER NOT NULL,
 
     CHECK (eta_minima > 0)
@@ -67,8 +67,8 @@ CREATE TABLE corso (
     descrizione TEXT,
     data_inizio DATE NOT NULL,
     stato VARCHAR(30) NOT NULL,
-    numero_lezioni_teoriche INTEGER,
-    numero_minimo_lezioni_pratiche INTEGER,
+    numero_lezioni_teoriche INTEGER NOT NULL,
+    numero_minimo_lezioni_pratiche INTEGER NOT NULL,
     foglio_rosa BOOLEAN NOT NULL,
     categoria_patente VARCHAR(10) NOT NULL,
 
@@ -102,18 +102,19 @@ CREATE TABLE veicolo (
     marchio VARCHAR(50) NOT NULL,
     modello VARCHAR(50) NOT NULL,
     categoria VARCHAR(10) NOT NULL,
-    data_scadenza_assicurazione DATE,
-    data_scadenza_revisione DATE
+    data_scadenza_assicurazione DATE NOT NULL,
+    data_scadenza_revisione DATE NOT NULL
 );
 
 
 CREATE TABLE lezione (
-    id_lezione SERIAL PRIMARY KEY,
     data DATE NOT NULL,
     ora_inizio TIME NOT NULL,
     durata INTEGER NOT NULL,
     id_corso INTEGER NOT NULL,
     codice_fiscale_istruttore CHAR(16) NOT NULL,
+
+    PRIMARY KEY (data, ora_inizio),
 
     FOREIGN KEY (id_corso)
         REFERENCES corso(id_corso)
@@ -127,63 +128,71 @@ CREATE TABLE lezione (
 
 
 CREATE TABLE teoria (
-    id_lezione INTEGER PRIMARY KEY,
+    data DATE NOT NULL,
+    ora_inizio TIME NOT NULL,
+    durata INTEGER NOT NULL,
+
     aula VARCHAR(50),
     modalita VARCHAR(30),
     argomento VARCHAR(255) NOT NULL,
 
-    FOREIGN KEY (id_lezione)
-        REFERENCES lezione(id_lezione)
+    PRIMARY KEY (data, ora_inizio, durata),
+
+    FOREIGN KEY (data, ora_inizio, durata)
+        REFERENCES lezione(data, ora_inizio, durata)
         ON DELETE CASCADE
 );
 
 
 CREATE TABLE pratica (
-    id_lezione INTEGER PRIMARY KEY,
-    luogo_partenza VARCHAR(100),
+    data DATE NOT NULL,
+    ora_inizio TIME NOT NULL,
+    durata INTEGER NOT NULL,
+
+    luogo_partenza VARCHAR(100) NOT NULL,
     valutazione VARCHAR(50),
     note_istruttore TEXT,
     targa_veicolo VARCHAR(10) NOT NULL,
+    codice_fiscale_allievo CHAR(16) NOT NULL,
 
-    FOREIGN KEY (id_lezione)
-        REFERENCES lezione(id_lezione)
+    PRIMARY KEY (data, ora_inizio, durata),
+
+    FOREIGN KEY (data, ora_inizio, durata)
+        REFERENCES lezione(data, ora_inizio, durata)
         ON DELETE CASCADE,
 
     FOREIGN KEY (targa_veicolo)
-        REFERENCES veicolo(targa)
+        REFERENCES veicolo(targa),
+
+    FOREIGN KEY (codice_fiscale_allievo)
+        REFERENCES allievo(codice_fiscale)
+        ON DELETE CASCADE
 );
 
 
 CREATE TABLE frequenza (
     codice_fiscale_allievo CHAR(16) NOT NULL,
-    id_lezione_teoria INTEGER NOT NULL,
+    data_lezione DATE NOT NULL,
+    ora_inizio_lezione TIME NOT NULL,
+    durata_lezione INTEGER NOT NULL,
 
-    PRIMARY KEY (codice_fiscale_allievo, id_lezione_teoria),
-
-    FOREIGN KEY (codice_fiscale_allievo)
-        REFERENCES allievo(codice_fiscale)
-        ON DELETE CASCADE,
-
-    FOREIGN KEY (id_lezione_teoria)
-        REFERENCES teoria(id_lezione)
-        ON DELETE CASCADE
-);
-
-
-CREATE TABLE guida (
-    codice_fiscale_allievo CHAR(16) NOT NULL,
-    id_lezione_pratica INTEGER NOT NULL,
-
-    PRIMARY KEY (codice_fiscale_allievo, id_lezione_pratica),
+    PRIMARY KEY (
+        codice_fiscale_allievo,
+        data_lezione,
+        ora_inizio_lezione,
+        durata_lezione
+    ),
 
     FOREIGN KEY (codice_fiscale_allievo)
         REFERENCES allievo(codice_fiscale)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (id_lezione_pratica)
-        REFERENCES pratica(id_lezione)
+    FOREIGN KEY (data_lezione, ora_inizio_lezione, durata_lezione)
+        REFERENCES teoria(data, ora_inizio, durata)
         ON DELETE CASCADE
 );
+
+
 
 
 CREATE TABLE pagamento (
@@ -194,22 +203,38 @@ CREATE TABLE pagamento (
     stato VARCHAR(30) NOT NULL,
 
     codice_pratica INTEGER,
-    id_lezione_pratica INTEGER,
+    data_lezione_pratica DATE,
+    ora_inizio_lezione_pratica TIME,
+    durata_lezione_pratica INTEGER,
 
     FOREIGN KEY (codice_pratica)
         REFERENCES iscrizione(codice_pratica)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (id_lezione_pratica)
-        REFERENCES pratica(id_lezione)
+    FOREIGN KEY (
+        data_lezione_pratica,
+        ora_inizio_lezione_pratica,
+        durata_lezione_pratica
+    )
+        REFERENCES pratica(data, ora_inizio, durata)
         ON DELETE CASCADE,
 
     CHECK (importo > 0),
 
     CHECK (
-        (codice_pratica IS NOT NULL AND id_lezione_pratica IS NULL)
+        (
+            codice_pratica IS NOT NULL
+            AND data_lezione_pratica IS NULL
+            AND ora_inizio_lezione_pratica IS NULL
+            AND durata_lezione_pratica IS NULL
+        )
         OR
-        (codice_pratica IS NULL AND id_lezione_pratica IS NOT NULL)
+        (
+            codice_pratica IS NULL
+            AND data_lezione_pratica IS NOT NULL
+            AND ora_inizio_lezione_pratica IS NOT NULL
+            AND durata_lezione_pratica IS NOT NULL
+        )
     )
 );
 
@@ -218,8 +243,8 @@ CREATE TABLE esame (
     id_esame SERIAL PRIMARY KEY,
     data_esame DATE NOT NULL,
     tipo_esame VARCHAR(30) NOT NULL,
-    esito VARCHAR(30),
-    luogo VARCHAR(100),
+    esito VARCHAR(30) NOT NULL,
+    luogo VARCHAR(100) NOT NULL,
     note TEXT,
     codice_fiscale_allievo CHAR(16) NOT NULL,
     id_corso INTEGER NOT NULL,
