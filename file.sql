@@ -57,7 +57,7 @@ CREATE TABLE patente (
     descrizione VARCHAR(255),
     eta_minima INTEGER NOT NULL,
 
-    CHECK (eta_minima >= 14)
+    CHECK (eta_minima > 0)
 );
 
 
@@ -94,22 +94,6 @@ CREATE TABLE iscrizione (
     FOREIGN KEY (id_corso)
         REFERENCES corso(id_corso)
         ON DELETE CASCADE
-);
-
-
-CREATE TABLE pagamento (
-    id_pagamento SERIAL PRIMARY KEY,
-    data_pagamento DATE NOT NULL,
-    importo NUMERIC(8,2) NOT NULL,
-    metodo_pagamento VARCHAR(30) NOT NULL,
-    stato VARCHAR(30) NOT NULL,
-    codice_pratica INTEGER,
-
-    FOREIGN KEY (codice_pratica)
-        REFERENCES iscrizione(codice_pratica)
-        ON DELETE SET NULL,
-
-    CHECK (importo > 0)
 );
 
 
@@ -171,8 +155,8 @@ CREATE TABLE pratica (
 
 
 CREATE TABLE frequenza (
-    codice_fiscale_allievo CHAR(16),
-    id_lezione_teoria INTEGER,
+    codice_fiscale_allievo CHAR(16) NOT NULL,
+    id_lezione_teoria INTEGER NOT NULL,
 
     PRIMARY KEY (codice_fiscale_allievo, id_lezione_teoria),
 
@@ -187,8 +171,8 @@ CREATE TABLE frequenza (
 
 
 CREATE TABLE guida (
-    codice_fiscale_allievo CHAR(16),
-    id_lezione_pratica INTEGER,
+    codice_fiscale_allievo CHAR(16) NOT NULL,
+    id_lezione_pratica INTEGER NOT NULL,
 
     PRIMARY KEY (codice_fiscale_allievo, id_lezione_pratica),
 
@@ -199,6 +183,34 @@ CREATE TABLE guida (
     FOREIGN KEY (id_lezione_pratica)
         REFERENCES pratica(id_lezione)
         ON DELETE CASCADE
+);
+
+
+CREATE TABLE pagamento (
+    id_pagamento SERIAL PRIMARY KEY,
+    data_pagamento DATE NOT NULL,
+    importo NUMERIC(8,2) NOT NULL,
+    metodo_pagamento VARCHAR(30) NOT NULL,
+    stato VARCHAR(30) NOT NULL,
+
+    codice_pratica INTEGER,
+    id_lezione_pratica INTEGER,
+
+    FOREIGN KEY (codice_pratica)
+        REFERENCES iscrizione(codice_pratica)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (id_lezione_pratica)
+        REFERENCES pratica(id_lezione)
+        ON DELETE CASCADE,
+
+    CHECK (importo > 0),
+
+    CHECK (
+        (codice_pratica IS NOT NULL AND id_lezione_pratica IS NULL)
+        OR
+        (codice_pratica IS NULL AND id_lezione_pratica IS NOT NULL)
+    )
 );
 
 
