@@ -114,7 +114,7 @@ CREATE TABLE lezione (
     id_corso INTEGER NOT NULL,
     codice_fiscale_istruttore CHAR(16) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio),
+    PRIMARY KEY (data, ora_inizio, durata),
 
     FOREIGN KEY (id_corso)
         REFERENCES corso(id_corso)
@@ -125,7 +125,6 @@ CREATE TABLE lezione (
 
     CHECK (durata > 0)
 );
-
 
 CREATE TABLE teoria (
     data DATE NOT NULL,
