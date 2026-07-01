@@ -113,7 +113,7 @@ CREATE TABLE lezione (
     id_corso INTEGER NOT NULL,
     codice_fiscale_istruttore CHAR(16) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata),
+    PRIMARY KEY (data, ora_inizio, durata, codice_fiscale_istruttore),
 
     FOREIGN KEY (id_corso)
         REFERENCES corso(id_corso)
@@ -129,15 +129,16 @@ CREATE TABLE teoria (
     data DATE NOT NULL,
     ora_inizio TIME NOT NULL,
     durata INTEGER NOT NULL,
+    codice_fiscale_istruttore CHAR(16) NOT NULL,
 
     aula VARCHAR(50),
     modalita VARCHAR(30),
     argomento VARCHAR(255) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata),
+    PRIMARY KEY (data, ora_inizio, durata,codice_fiscale_istruttore),
 
-    FOREIGN KEY (data, ora_inizio, durata)
-        REFERENCES lezione(data, ora_inizio, durata)
+    FOREIGN KEY (data, ora_inizio, durata,codice_fiscale_istruttore)
+        REFERENCES lezione(data, ora_inizio, durata,codice_fiscale_istruttore)
         ON DELETE CASCADE
 );
 
@@ -152,11 +153,12 @@ CREATE TABLE pratica (
     note_istruttore TEXT,
     targa_veicolo VARCHAR(10) NOT NULL,
     codice_fiscale_allievo CHAR(16) NOT NULL,
+    codice_fiscale_istruttore CHAR(16) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata),
+    PRIMARY KEY (data, ora_inizio, durata,codice_fiscale_istruttore),
 
-    FOREIGN KEY (data, ora_inizio, durata)
-        REFERENCES lezione(data, ora_inizio, durata)
+    FOREIGN KEY (data, ora_inizio, durata,codice_fiscale_istruttore)
+        REFERENCES lezione(data, ora_inizio, durata,codice_fiscale_istruttore)
         ON DELETE CASCADE,
 
     FOREIGN KEY (targa_veicolo)
