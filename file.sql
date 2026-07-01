@@ -113,7 +113,7 @@ CREATE TABLE lezione (
     id_corso INTEGER NOT NULL,
     codice_fiscale_istruttore CHAR(16) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata, codice_fiscale_istruttore),
+    PRIMARY KEY (data, ora_inizio, codice_fiscale_istruttore),
 
     FOREIGN KEY (id_corso)
         REFERENCES corso(id_corso)
@@ -128,17 +128,16 @@ CREATE TABLE lezione (
 CREATE TABLE teoria (
     data DATE NOT NULL,
     ora_inizio TIME NOT NULL,
-    durata INTEGER NOT NULL,
     codice_fiscale_istruttore CHAR(16) NOT NULL,
 
     aula VARCHAR(50),
     modalita VARCHAR(30),
     argomento VARCHAR(255) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata,codice_fiscale_istruttore),
+    PRIMARY KEY (data, ora_inizio, codice_fiscale_istruttore),
 
-    FOREIGN KEY (data, ora_inizio, durata,codice_fiscale_istruttore)
-        REFERENCES lezione(data, ora_inizio, durata,codice_fiscale_istruttore)
+    FOREIGN KEY (data, ora_inizio, codice_fiscale_istruttore)
+        REFERENCES lezione(data, ora_inizio, codice_fiscale_istruttore)
         ON DELETE CASCADE
 );
 
@@ -146,19 +145,18 @@ CREATE TABLE teoria (
 CREATE TABLE pratica (
     data DATE NOT NULL,
     ora_inizio TIME NOT NULL,
-    durata INTEGER NOT NULL,
+    codice_fiscale_istruttore CHAR(16) NOT NULL,
 
     luogo_partenza VARCHAR(100) NOT NULL,
     valutazione VARCHAR(50),
     note_istruttore TEXT,
     targa_veicolo VARCHAR(10) NOT NULL,
     codice_fiscale_allievo CHAR(16) NOT NULL,
-    codice_fiscale_istruttore CHAR(16) NOT NULL,
 
-    PRIMARY KEY (data, ora_inizio, durata,codice_fiscale_istruttore),
+    PRIMARY KEY (data, ora_inizio, codice_fiscale_istruttore),
 
-    FOREIGN KEY (data, ora_inizio, durata,codice_fiscale_istruttore)
-        REFERENCES lezione(data, ora_inizio, durata,codice_fiscale_istruttore)
+    FOREIGN KEY (data, ora_inizio, codice_fiscale_istruttore)
+        REFERENCES lezione(data, ora_inizio, codice_fiscale_istruttore)
         ON DELETE CASCADE,
 
     FOREIGN KEY (targa_veicolo)
@@ -166,9 +164,11 @@ CREATE TABLE pratica (
 
     FOREIGN KEY (codice_fiscale_allievo)
         REFERENCES allievo(codice_fiscale)
-        ON DELETE CASCADE
-);
+        ON DELETE CASCADE,
 
+    UNIQUE (data, ora_inizio, targa_veicolo),
+    UNIQUE (data, ora_inizio, codice_fiscale_allievo)
+);
 
 CREATE TABLE frequenza (
     codice_fiscale_allievo CHAR(16) NOT NULL,
