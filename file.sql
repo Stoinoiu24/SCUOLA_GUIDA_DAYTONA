@@ -174,25 +174,23 @@ CREATE TABLE frequenza (
     codice_fiscale_allievo CHAR(16) NOT NULL,
     data_lezione DATE NOT NULL,
     ora_inizio_lezione TIME NOT NULL,
-    durata_lezione INTEGER NOT NULL,
+    codice_fiscale_istruttore CHAR(16) NOT NULL,
 
     PRIMARY KEY (
         codice_fiscale_allievo,
         data_lezione,
         ora_inizio_lezione,
-        durata_lezione
+        codice_fiscale_istruttore
     ),
 
     FOREIGN KEY (codice_fiscale_allievo)
         REFERENCES allievo(codice_fiscale)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (data_lezione, ora_inizio_lezione, durata_lezione)
-        REFERENCES teoria(data, ora_inizio, durata)
+    FOREIGN KEY (data_lezione, ora_inizio_lezione, codice_fiscale_istruttore)
+        REFERENCES teoria(data, ora_inizio, codice_fiscale_istruttore)
         ON DELETE CASCADE
 );
-
-
 
 
 CREATE TABLE pagamento (
@@ -205,18 +203,14 @@ CREATE TABLE pagamento (
     codice_pratica INTEGER,
     data_lezione_pratica DATE,
     ora_inizio_lezione_pratica TIME,
-    durata_lezione_pratica INTEGER,
+    codice_fiscale_istruttore CHAR(16),
 
     FOREIGN KEY (codice_pratica)
         REFERENCES iscrizione(codice_pratica)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (
-        data_lezione_pratica,
-        ora_inizio_lezione_pratica,
-        durata_lezione_pratica
-    )
-        REFERENCES pratica(data, ora_inizio, durata)
+    FOREIGN KEY (data_lezione_pratica, ora_inizio_lezione_pratica, codice_fiscale_istruttore)
+        REFERENCES pratica(data, ora_inizio, codice_fiscale_istruttore)
         ON DELETE CASCADE,
 
     CHECK (importo > 0),
@@ -226,14 +220,14 @@ CREATE TABLE pagamento (
             codice_pratica IS NOT NULL
             AND data_lezione_pratica IS NULL
             AND ora_inizio_lezione_pratica IS NULL
-            AND durata_lezione_pratica IS NULL
+            AND codice_fiscale_istruttore IS NULL
         )
         OR
         (
             codice_pratica IS NULL
             AND data_lezione_pratica IS NOT NULL
             AND ora_inizio_lezione_pratica IS NOT NULL
-            AND durata_lezione_pratica IS NOT NULL
+            AND codice_fiscale_istruttore IS NOT NULL
         )
     )
 );
